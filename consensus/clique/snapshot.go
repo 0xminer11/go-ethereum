@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"sort"
 	"time"
 
@@ -420,6 +421,10 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 			fmt.Println(snap.TallyDelegatedStake[i].OStakes)
 			fmt.Println(snap.TallyDelegatedStake[i].Owner)
 		}
+
+		// Random miner
+		n := rand.Intn(len(snap.TallyDelegatedStake)-0) + 0
+		snap.StakeSigner = snap.TallyDelegatedStake[n].Owner
 
 		// If we're taking too much time (ecrecover), notify the user once a while
 		if time.Since(logged) > 8*time.Second {

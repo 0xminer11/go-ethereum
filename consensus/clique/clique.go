@@ -185,6 +185,7 @@ type Clique struct {
 	signFn    SignerFn       // Signer function to authorize hashes with
 	lock      sync.RWMutex   // Protects the signer fields
 	malicious bool
+	timetaken time.Duration
 
 	// The fields below are for testing only
 	fakeDiff bool // Skip difficulty verifications
@@ -671,6 +672,8 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 
 	}
 
+	t := time.Now()
+
 	if c.malicious == true {
 		fmt.Println("before", c.stake)
 		c.stake = c.stake - (c.stake * 1 / 4)
@@ -681,40 +684,45 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	}
 
 	// Round Robin
-	if snap.StakeSigner.String() == "0x0000000000000000000000000000000000000000" {
-		snap.StakeSigner = snap.TallyDelegatedStake[0].Owner
-
-		fmt.Println("Signer", snap.TallyDelegatedStake[0].Owner)
-
-	} else {
-		temp := snap.StakeSigner
-
-		for i := 0; i < len(snap.TallyDelegatedStake); i++ {
-			if temp == snap.TallyDelegatedStake[i].Owner {
-				if i+1 == len(snap.TallyDelegatedStake) {
-					snap.StakeSigner = snap.TallyDelegatedStake[0].Owner
-					fmt.Println("Signer", snap.TallyDelegatedStake[0].Owner)
-					break
-				} else {
-					snap.StakeSigner = snap.TallyDelegatedStake[i+1].Owner
-					fmt.Println("Signer", snap.TallyDelegatedStake[i+1].Owner)
-					break
-				}
-				break
-			}
-
-		}
-	}
+	//if snap.StakeSigner.String() == "0x0000000000000000000000000000000000000000" {
+	//	snap.StakeSigner = snap.TallyDelegatedStake[0].Owner
+	//
+	//	fmt.Println("Signer", snap.TallyDelegatedStake[0].Owner)
+	//
+	//} else {
+	//	temp := snap.StakeSigner
+	//
+	//	for i := 0; i < len(snap.TallyDelegatedStake); i++ {
+	//		if temp == snap.TallyDelegatedStake[i].Owner {
+	//			if i+1 == len(snap.TallyDelegatedStake) {
+	//				snap.StakeSigner = snap.TallyDelegatedStake[0].Owner
+	//				fmt.Println("Signer", snap.TallyDelegatedStake[0].Owner)
+	//				break
+	//			} else {
+	//				snap.StakeSigner = snap.TallyDelegatedStake[i+1].Owner
+	//				fmt.Println("Signer", snap.TallyDelegatedStake[i+1].Owner)
+	//				break
+	//			}
+	//			break
+	//		}
+	//
+	//	}
+	//}
 
 	log.Info("Delegated Nodes")
 	for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 		fmt.Println(snap.TallyDelegatedStake[i].OStakes)
 		fmt.Println(snap.TallyDelegatedStake[i].Owner)
 	}
+
 	if signer != snap.StakeSigner && flag == 0 {
 		//fmt.Println("Signer", snap.StakeSigner)
+		c.timetaken = time.Now().Sub(t)
 		return errUnauthorizedSigner
+
 	} else {
+		fmt.Println("Time Waited for mining ", c.timetaken)
+		c.timetaken = 0
 		c.stake = c.stake + 5
 		//for i := 0; i < len(snap.TallyStakes); i++ {
 		//	if snap.StakeSigner == snap.TallyStakes[i].Owner {
