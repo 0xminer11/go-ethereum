@@ -683,32 +683,6 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 
 	}
 
-	// Round Robin
-	//if snap.StakeSigner.String() == "0x0000000000000000000000000000000000000000" {
-	//	snap.StakeSigner = snap.TallyDelegatedStake[0].Owner
-	//
-	//	fmt.Println("Signer", snap.TallyDelegatedStake[0].Owner)
-	//
-	//} else {
-	//	temp := snap.StakeSigner
-	//
-	//	for i := 0; i < len(snap.TallyDelegatedStake); i++ {
-	//		if temp == snap.TallyDelegatedStake[i].Owner {
-	//			if i+1 == len(snap.TallyDelegatedStake) {
-	//				snap.StakeSigner = snap.TallyDelegatedStake[0].Owner
-	//				fmt.Println("Signer", snap.TallyDelegatedStake[0].Owner)
-	//				break
-	//			} else {
-	//				snap.StakeSigner = snap.TallyDelegatedStake[i+1].Owner
-	//				fmt.Println("Signer", snap.TallyDelegatedStake[i+1].Owner)
-	//				break
-	//			}
-	//			break
-	//		}
-	//
-	//	}
-	//}
-
 	log.Info("Delegated Nodes")
 	for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 		fmt.Println(snap.TallyDelegatedStake[i].OStakes)
