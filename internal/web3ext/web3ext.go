@@ -135,6 +135,17 @@ web3._extend({
 			params: 1
 		}),
 		new web3._extend.Method({
+			name: 'makeCollision',
+			call: 'clique_makeCollision',
+			params: 0
+		}),
+		new web3._extend.Method({
+			name: 'makeExponential',
+			call: 'clique_makeExponential',
+			params: 0
+		}),
+		
+		new web3._extend.Method({
 			name: 'getDelegatedSigners',
 			call: 'clique_getDelegatedSigners',
 			params: 0

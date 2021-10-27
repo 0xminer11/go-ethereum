@@ -19,6 +19,8 @@ package clique
 import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/log"
+	"math/rand"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
@@ -85,9 +87,21 @@ func (api *API) AddStake(stake uint64) {
 	api.clique.lock.Lock()
 	defer api.clique.lock.Unlock()
 
-	//api.clique.stakes[address] = stake
+	//api.clique.stakes[address] = stake:
 	api.clique.stake = stake
+	n := rand.Intn(9-0) + 0
+	api.clique.sleeptime = time.Duration(n * 100)
 
+}
+
+func (api *API) MakeCollision() {
+	api.clique.collision = true
+	api.clique.exponential = false
+}
+
+func (api *API) MakeExponential() {
+	api.clique.collision = false
+	api.clique.exponential = true
 }
 
 func (api *API) ActAsMalicious() {

@@ -181,11 +181,15 @@ type Clique struct {
 	stakes    map[common.Address]uint64 // stakes and owners (Abhi)
 	stake     uint64
 
-	signer    common.Address // Ethereum address of the signing key
-	signFn    SignerFn       // Signer function to authorize hashes with
-	lock      sync.RWMutex   // Protects the signer fields
-	malicious bool
-	timetaken time.Duration
+	signer      common.Address // Ethereum address of the signing key
+	signFn      SignerFn       // Signer function to authorize hashes with
+	lock        sync.RWMutex   // Protects the signer fields
+	malicious   bool
+	timetaken   time.Duration
+	sleeptime   time.Duration
+	acttime     time.Duration
+	collision   bool
+	exponential bool
 
 	// The fields below are for testing only
 	fakeDiff bool // Skip difficulty verifications
@@ -643,6 +647,7 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 		}
 
 	*/
+
 	// Don't hold the signer fields for the entire sealing procedure
 	c.lock.RLock()
 	signer, signFn := c.signer, c.signFn
@@ -671,6 +676,23 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 		flag = 1
 
 	}
+	for i := 0; i < len(snap.TallyDelegatedStake); i++ {
+		if header.Coinbase == snap.TallyDelegatedStake[i].Owner {
+			snap.TallyDelegatedStake[i].sleeptime = c.sleeptime
+		}
+	}
+
+	if c.collision == true {
+		snap.collision = true
+		snap.exponential = false
+		c.collision = false
+	}
+
+	if c.exponential == true {
+		snap.exponential = true
+		snap.collision = false
+		c.exponential = false
+	}
 
 	t := time.Now()
 
@@ -687,6 +709,15 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	for i := 0; i < len(snap.TallyDelegatedStake); i++ {
 		fmt.Println(snap.TallyDelegatedStake[i].OStakes)
 		fmt.Println(snap.TallyDelegatedStake[i].Owner)
+	}
+
+	c.acttime = time.Now().Sub(t)
+	if c.acttime > c.sleeptime {
+		snap.StakeSigner = header.Coinbase
+		fmt.Println("Miner Selected", header.Coinbase)
+		n := rand.Intn(9-0) + 0
+		c.sleeptime = time.Duration(n * 100)
+		c.acttime = 0
 	}
 
 	if signer != snap.StakeSigner && flag == 0 {
