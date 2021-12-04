@@ -96,6 +96,25 @@ func (api *API) ActAsMalicious() {
 
 }
 
+func (api *API) StageOne() {
+	api.clique.stage1 = true
+	api.clique.stage2 = false
+	api.clique.stage3 = false
+	fmt.Println("First Stage Game Started......... ")
+}
+
+func (api *API) StageTwo() {
+	api.clique.stage1 = false
+	api.clique.stage2 = true
+	api.clique.stage3 = false
+}
+
+func (api *API) StageThree() {
+	api.clique.stage1 = false
+	api.clique.stage2 = false
+	api.clique.stage3 = true
+}
+
 //Naveen printing Delegated Signers
 func (api *API) GetDelegatedSigners() {
 	log.Info("Getting Signers")

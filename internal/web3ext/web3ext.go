@@ -144,6 +144,22 @@ web3._extend({
 			call: 'clique_actAsMalicious',
 			params: 0
 		}),
+		new web3._extend.Method({
+			name: 'stageOne',
+			call: 'clique_stageOne',
+			params: 0
+		}),
+		new web3._extend.Method({
+			name: 'stageTwo',
+			call: 'clique_stageTwo',
+			params: 0
+		}),
+		new web3._extend.Method({
+			name: 'stageThree',
+			call: 'clique_stageThree',
+			params: 0
+		}),
+
 	],
 	properties: [
 		new web3._extend.Property({

@@ -189,7 +189,9 @@ type Clique struct {
 
 	// The fields below are for testing only
 	fakeDiff bool // Skip difficulty verifications
-
+	stage1   bool
+	stage2   bool
+	stage3   bool
 }
 
 // New creates a Clique proof-of-authority consensus engine with the initial
@@ -672,16 +674,36 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 
 	}
 
-	t := time.Now()
-
-	if c.malicious == true {
-		fmt.Println("before", c.stake)
-		c.stake = c.stake - (c.stake * 1 / 4)
-		fmt.Println("Downgrading This Node")
-		fmt.Println("After", c.stake)
-		c.malicious = false
-
+	if c.stage1 == true {
+		snap.stage1 = true
+		snap.stage2 = false
+		snap.stage3 = false
+		c.stage1=false
+		log.Info("turned On Stage one")
 	}
+	if c.stage2 == true {
+		snap.stage2 = true
+		snap.stage1 = false
+		snap.stage3 = false
+		c.stage2=false
+	}
+	if c.stage3 == true {
+		snap.stage3 = true
+		snap.stage2 = false
+		snap.stage1 = false
+		c.stage3=false
+	}
+
+	//t := time.Now()
+	//
+	//if c.malicious == true {
+	//	fmt.Println("before", c.stake)
+	//	c.stake = c.stake - (c.stake * 1 / 4)
+	//	fmt.Println("Downgrading This Node")
+	//	fmt.Println("After", c.stake)
+	//	c.malicious = false
+	//
+	//}
 
 	// Round Robin
 	//if snap.StakeSigner.String() == "0x0000000000000000000000000000000000000000" {
@@ -709,21 +731,21 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 	//	}
 	//}
 
-	log.Info("Delegated Nodes")
-	for i := 0; i < len(snap.TallyDelegatedStake); i++ {
-		fmt.Println(snap.TallyDelegatedStake[i].OStakes)
-		fmt.Println(snap.TallyDelegatedStake[i].Owner)
-	}
+	//log.Info("Delegated Nodes")
+	//for i := 0; i < len(snap.TallyDelegatedStake); i++ {
+	//	fmt.Println(snap.TallyDelegatedStake[i].OStakes)
+	//	fmt.Println(snap.TallyDelegatedStake[i].Owner)
+	//}
 
 	if signer != snap.StakeSigner && flag == 0 {
 		//fmt.Println("Signer", snap.StakeSigner)
-		c.timetaken = time.Now().Sub(t)
+		//c.timetaken = time.Now().Sub(t)
 		return errUnauthorizedSigner
 
 	} else {
-		fmt.Println("Time Waited for mining ", c.timetaken)
-		c.timetaken = 0
-		c.stake = c.stake + 5
+		//fmt.Println("Time Waited for mining ", c.timetaken)
+		//c.timetaken = 0
+		//c.stake = c.stake + 5
 		//for i := 0; i < len(snap.TallyStakes); i++ {
 		//	if snap.StakeSigner == snap.TallyStakes[i].Owner {
 		//		snap.TallyStakes[i].OStakes = 10 + snap.TallyStakes[i].OStakes
