@@ -66,7 +66,7 @@ type TallyStake struct {
 	OStakes   uint64         `json:"o_stakes"`
 	Timestamp time.Time      `json:"timestamp"`
 	//CoinAge   uint64         `json:"coin_age"`
-	MiningPower uint64		 `json:"mining_power"`
+	MiningPower uint64 `json:"mining_power"`
 }
 
 type TallyDelegatedStake struct {
@@ -75,15 +75,23 @@ type TallyDelegatedStake struct {
 }
 
 type StrongPool struct {
-	Owner   common.Address `json:"owner"`
-	OStakes uint64         `json:"o_stakes"`
-	MiningPower uint64		`json:"mining_power"`
+	Owner       common.Address `json:"owner"`
+	OStakes     uint64         `json:"o_stakes"`
+	MiningPower uint64         `json:"mining_power"`
+	attack      bool           `json:"attack"`
 }
 
 type WeekPool struct {
-	Owner   common.Address `json:"owner"`
-	OStakes uint64         `json:"o_stakes"`
-	MiningPower uint64		`json:"mining_power"`
+	Owner       common.Address `json:"owner"`
+	OStakes     uint64         `json:"o_stakes"`
+	MiningPower uint64         `json:"mining_power"`
+	attack      bool           `json:"attack"`
+}
+
+type Minerpool struct {
+	Owner       common.Address `json:"owner"`
+	OStakes     uint64         `json:"o_stakes"`
+	MiningPower uint64         `json:"mining_power"`
 }
 
 // Snapshot is the state of the authorization voting at a given point in time.
@@ -350,10 +358,8 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 				Timestamp: timestamp,
 			})
 		} else {
-			snap.TallyStakes[posistion].OStakes=in_stakes
+			snap.TallyStakes[posistion].OStakes = in_stakes
 		}
-
-
 
 		fmt.Println("leangth", len(snap.TallyStakes))
 
@@ -433,34 +439,34 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 		//Stage 1 Game
 		avg := uint64(0)
 		add := uint64(0)
-		if snap.stage1 == true {
-			for i := 0; i < len(snap.TallyStakes); i++ {
+		for i := 0; i < len(snap.TallyStakes); i++ {
 
-				add = add + snap.TallyStakes[i].OStakes
-				snap.TallyStakes[i].MiningPower=snap.TallyStakes[i].OStakes/32
+			add = add + snap.TallyStakes[i].OStakes
+			snap.TallyStakes[i].MiningPower = snap.TallyStakes[i].OStakes / 32
 
-			}
-			avg = add / uint64(len(snap.TallyStakes))
-			var f1 bool
-			for i := 0; i < len(snap.TallyStakes); i++ {
-				if snap.TallyStakes[i].OStakes > avg && snap.TallyStakes[i].OStakes >= 32 {
-					for j := 0; j < len(snap.StrongPool); j++ {
-						if snap.TallyStakes[i].Owner == snap.StrongPool[j].Owner {
-							f1 = true
-							snap.StrongPool[j].OStakes = snap.TallyStakes[i].OStakes
-							snap.StrongPool[j].MiningPower = snap.TallyStakes[i].MiningPower
-							fmt.Println("Updated in Strong Pool")
-						}
-					}
-					if f1 == false {
-						snap.StrongPool = append(snap.StrongPool, &StrongPool{
-							Owner:       snap.TallyStakes[i].Owner,
-							OStakes:     snap.TallyStakes[i].OStakes,
-							MiningPower: snap.TallyStakes[i].MiningPower,
-						})
-						fmt.Println("Chosen Strong Pool")
+		}
+		avg = add / uint64(len(snap.TallyStakes))
+		fmt.Println("avg:", add, avg)
+		var f1 bool
+		for i := 0; i < len(snap.TallyStakes); i++ {
+			if snap.TallyStakes[i].OStakes > avg && snap.TallyStakes[i].OStakes >= 32 {
+				for j := 0; j < len(snap.StrongPool); j++ {
+					if snap.TallyStakes[i].Owner == snap.StrongPool[j].Owner {
+						f1 = true
+						snap.StrongPool[j].OStakes = snap.TallyStakes[i].OStakes
+						snap.StrongPool[j].MiningPower = snap.TallyStakes[i].MiningPower
+						fmt.Println("Updated in Strong Pool")
 					}
 				}
+				if f1 == false {
+					snap.StrongPool = append(snap.StrongPool, &StrongPool{
+						Owner:       snap.TallyStakes[i].Owner,
+						OStakes:     snap.TallyStakes[i].OStakes,
+						MiningPower: snap.TallyStakes[i].MiningPower,
+					})
+					fmt.Println("Chosen Strong Pool")
+				}
+			} else {
 				for j := 0; j < len(snap.WeekPool); j++ {
 					if snap.TallyStakes[i].Owner == snap.WeekPool[j].Owner {
 						f1 = true
@@ -477,58 +483,195 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 					})
 					fmt.Println("Chosen Week Pool")
 				}
+
 			}
-			snap.stage1=false
 
 		}
+
+		snap.stage1 = false
+		fmt.Println("Nodes in Network:- ")
+		for i := 0; i < len(snap.TallyStakes); i++ {
+			fmt.Println(snap.TallyStakes[i].OStakes)
+			fmt.Println(snap.TallyStakes[i].Owner)
+		}
+
+		//addsp := uint64(0)
+		//avgsp := uint64(0)
+		//for i:=0;i<len(snap.StrongPool);i++{
+		//	addsp=addsp +snap.StrongPool[i].MiningPower
+		//}
+		//avgsp =addsp/uint64(len(snap.StrongPool))
+		//
+		//addwp := uint64(0)
+		//avgwp := uint64(0)
+		//for i:=0;i<len(snap.WeekPool);i++{
+		//	addwp=addwp +snap.WeekPool[i].MiningPower
+		//}
+		//avgwp =addwp/uint64(len(snap.WeekPool))
+		addm := uint64(0)
+		avgm := uint64(0)
+		for i := 0; i < len(snap.TallyStakes); i++ {
+			addm = addm + snap.TallyStakes[i].OStakes
+
+		}
+		avgm = addm / uint64(len(snap.TallyStakes))
+		fmt.Println("Average Stake ", avgm)
+
+		for i := 0; i < len(snap.StrongPool); i++ {
+			if snap.WeekPool[i].MiningPower < avgm/4 && snap.WeekPool[i].MiningPower > avg {
+				n := rand.Intn(len(snap.StrongPool))
+				snap.StrongPool[n].MiningPower = snap.StrongPool[n].MiningPower - 1
+				snap.StrongPool[i].MiningPower = snap.StrongPool[i].MiningPower + 1
+				snap.StrongPool[i].OStakes = snap.StrongPool[i].OStakes - (snap.StrongPool[i].OStakes / 25)
+				snap.StrongPool[i].attack = true
+			}
+		}
+		for i := 0; i < len(snap.WeekPool); i++ {
+			if snap.WeekPool[i].MiningPower < avgm/4 && snap.WeekPool[i].MiningPower > avg {
+				n := rand.Intn(len(snap.StrongPool))
+				snap.StrongPool[n].MiningPower = snap.StrongPool[n].MiningPower - 1
+				snap.WeekPool[i].MiningPower = snap.WeekPool[i].MiningPower + 1
+				snap.WeekPool[i].OStakes = snap.WeekPool[i].OStakes - (snap.WeekPool[i].OStakes / 25)
+				snap.WeekPool[i].attack = true
+			}
+		}
+		snap.stage2 = false
+
+		fmt.Println("StrongPool Nodes")
+
 		for i := 0; i < len(snap.StrongPool); i++ {
 			fmt.Println(snap.StrongPool[i].OStakes)
 			fmt.Println(snap.StrongPool[i].Owner)
 			fmt.Println(snap.StrongPool[i].MiningPower)
 		}
 
-		if snap.stage2 ==true{
-			//addsp := uint64(0)
-			//avgsp := uint64(0)
-			//for i:=0;i<len(snap.StrongPool);i++{
-			//	addsp=addsp +snap.StrongPool[i].MiningPower
-			//}
-			//avgsp =addsp/uint64(len(snap.StrongPool))
-			//
-			//addwp := uint64(0)
-			//avgwp := uint64(0)
-			//for i:=0;i<len(snap.WeekPool);i++{
-			//	addwp=addwp +snap.WeekPool[i].MiningPower
-			//}
-			//avgwp =addwp/uint64(len(snap.WeekPool))
-			addm := uint64(0)
-			avgm := uint64(0)
-			for i:=0;i<len(snap.TallyStakes);i++{
-				addm=addm +snap.TallyStakes[i].MiningPower
+		fmt.Println("WeakPool Nodes")
 
-			}
-			avgm=addm/uint64(len(snap.TallyStakes))
-
-			for i:=0;i<len(snap.StrongPool);i++{
-				if snap.StrongPool[i].MiningPower < avgm /4 && snap.StrongPool[i].MiningPower>avg{
-					n:=rand.Intn(len(snap.StrongPool))
-					snap.StrongPool[n].MiningPower=snap.StrongPool[n].MiningPower-1
-					snap.StrongPool[i].MiningPower=snap.StrongPool[i].MiningPower+1
-					snap.StrongPool[i].OStakes=snap.StrongPool[i].OStakes-(snap.StrongPool[i].OStakes/25)
-				}
-			}
-			for i:=0;i<len(snap.WeekPool);i++{
-				if snap.WeekPool[i].MiningPower < avgm /4 && snap.WeekPool[i].MiningPower>avg{
-					n:=rand.Intn(len(snap.StrongPool))
-					snap.StrongPool[n].MiningPower=snap.StrongPool[n].MiningPower-1
-					snap.WeekPool[i].MiningPower=snap.WeekPool[i].MiningPower+1
-					snap.WeekPool[i].OStakes=snap.WeekPool[i].OStakes-(snap.WeekPool[i].OStakes/25)
-				}
-			}
-		snap.stage2=false
+		for i := 0; i < len(snap.WeekPool); i++ {
+			fmt.Println(snap.WeekPool[i].OStakes)
+			fmt.Println(snap.WeekPool[i].Owner)
+			fmt.Println(snap.WeekPool[i].MiningPower)
 		}
 
+		max1S := uint64(0)
+		max1O := common.Address{0}
+		max1Mp := uint64(0)
+		max1 := bool(false)
+		max1n := int(0)
+		max2S := uint64(0)
+		max2O := common.Address{0}
+		max2Mp := uint64(0)
+		max2 := bool(false)
+		max2n := int(0)
 
+		for i := 0; i < len(snap.StrongPool); i++ {
+			if max1S < snap.StrongPool[i].OStakes {
+				max1S = snap.StrongPool[i].OStakes
+				max1O = snap.StrongPool[i].Owner
+				max1Mp = snap.StrongPool[i].MiningPower
+				max1 = true
+				max1n = i
+			}
+		}
+		for i := 0; i < len(snap.StrongPool); i++ {
+			if max2S < snap.StrongPool[i].OStakes && max2S < max1S {
+				max2S = snap.StrongPool[i].OStakes
+				max2O = snap.StrongPool[i].Owner
+				max2Mp = snap.StrongPool[i].MiningPower
+				max2 = true
+				max2n = i
+			}
+		}
+		for i := 0; i < len(snap.WeekPool); i++ {
+			if max1S < snap.WeekPool[i].OStakes {
+				max1S = snap.WeekPool[i].OStakes
+				max1O = snap.WeekPool[i].Owner
+				max1Mp = snap.WeekPool[i].MiningPower
+				max1 = false
+				max1n = i
+			}
+		}
+		for i := 0; i < len(snap.WeekPool); i++ {
+			if max2S < snap.WeekPool[i].OStakes && max2S < max1S {
+				max2S = snap.WeekPool[i].OStakes
+				max2O = snap.WeekPool[i].Owner
+				max2Mp = snap.WeekPool[i].MiningPower
+				max2 = false
+				max2n = i
+			}
+		}
+
+		if max2Mp > max1Mp {
+			snap.StakeSigner = max2O
+		} else {
+			snap.StakeSigner = max1O
+		}
+		snap.stage3 = false
+		m11 := uint64(0)
+		m12 := uint64(0)
+		m13 := uint64(0)
+		m14 := uint64(0)
+		if max1 == true && snap.StrongPool[max1n].attack == false {
+			m11 = snap.StrongPool[max1n].MiningPower
+			m11 = m11 + 1
+		}
+		if max1 == true && snap.StrongPool[max1n].attack == true {
+			m11 = snap.StrongPool[max1n].MiningPower
+			m12 = m12 - 1
+		}
+		if max1 == false && snap.WeekPool[max1n].attack == false {
+			m13 = snap.WeekPool[max1n].MiningPower
+			m13 = m13 + 1
+		}
+		if max1 == false && snap.WeekPool[max1n].attack == true {
+			m14 = snap.WeekPool[max1n].MiningPower
+			m14 = m14 - 1
+		}
+
+		fmt.Println("Top Player Matrix")
+
+		fmt.Println("-----------------------")
+		fmt.Println("|   ", m11, " | ", m12, "      |")
+		fmt.Println("-----------------------")
+		fmt.Println("|   ", m13, " | ", m14, "      |")
+		fmt.Println("-----------------------")
+
+		m21 := uint64(0)
+		m22 := uint64(0)
+		m23 := uint64(0)
+		m24 := uint64(0)
+
+		if max2 == true && snap.StrongPool[max2n].attack == false {
+			m21 = snap.StrongPool[max1n].MiningPower
+			m21 = m21 + 1
+		}
+		if max2 == true && snap.StrongPool[max2n].attack == true {
+			m22 = snap.StrongPool[max1n].MiningPower
+			m22 = m22 - 1
+		}
+		if max2 == false && snap.WeekPool[max2n].attack == false {
+			m23 = snap.WeekPool[max1n].MiningPower
+			m23 = m23 + 1
+		}
+		if max2 == false && snap.WeekPool[max2n].attack == true {
+			m24 = snap.WeekPool[max1n].MiningPower
+			m24 = m24 - 1
+		}
+		fmt.Println("Second Top Player Matrix")
+
+		fmt.Println("-----------------------")
+		fmt.Println("|   ", m21, " | ", m22, "      |")
+		fmt.Println("-----------------------")
+		fmt.Println("|   ", m23, " | ", m24, "      |")
+		fmt.Println("-----------------------")
+
+		//fmt.Println("Second Top Player Matrix")
+		//
+		//fmt.Println("-----------------------")
+		//fmt.Println("|   ", m11," | ",m12,"      |")
+		//fmt.Println("-----------------------")
+		//fmt.Println("|   ", m23," | ",m24,"      |")
+		//fmt.Println("-----------------------")
 
 		//log.Info("Delegated Nodes")
 		//for i := 0; i < len(snap.TallyDelegatedStake); i++ {

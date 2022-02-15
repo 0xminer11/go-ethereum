@@ -107,12 +107,14 @@ func (api *API) StageTwo() {
 	api.clique.stage1 = false
 	api.clique.stage2 = true
 	api.clique.stage3 = false
+	fmt.Println("SeconStage Stage Game Started......... ")
 }
 
 func (api *API) StageThree() {
 	api.clique.stage1 = false
 	api.clique.stage2 = false
 	api.clique.stage3 = true
+	fmt.Println("Final Stage Game Started......... ")
 }
 
 //Naveen printing Delegated Signers

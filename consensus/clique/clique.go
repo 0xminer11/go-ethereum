@@ -678,32 +678,34 @@ func (c *Clique) Seal(chain consensus.ChainHeaderReader, block *types.Block, res
 		snap.stage1 = true
 		snap.stage2 = false
 		snap.stage3 = false
-		c.stage1=false
+		c.stage1 = false
 		log.Info("turned On Stage one")
 	}
 	if c.stage2 == true {
 		snap.stage2 = true
 		snap.stage1 = false
 		snap.stage3 = false
-		c.stage2=false
+		c.stage2 = false
+		log.Info("turned On Stage Two")
 	}
 	if c.stage3 == true {
 		snap.stage3 = true
 		snap.stage2 = false
 		snap.stage1 = false
-		c.stage3=false
+		c.stage3 = false
+		log.Info("turned On Stage Three")
 	}
 
 	//t := time.Now()
 	//
-	//if c.malicious == true {
-	//	fmt.Println("before", c.stake)
-	//	c.stake = c.stake - (c.stake * 1 / 4)
-	//	fmt.Println("Downgrading This Node")
-	//	fmt.Println("After", c.stake)
-	//	c.malicious = false
-	//
-	//}
+	if c.malicious == true {
+		fmt.Println("before", c.stake)
+		c.stake = c.stake - (c.stake * 1 / 4)
+		fmt.Println("Downgrading This Node")
+		fmt.Println("After", c.stake)
+		c.malicious = false
+
+	}
 
 	// Round Robin
 	//if snap.StakeSigner.String() == "0x0000000000000000000000000000000000000000" {
