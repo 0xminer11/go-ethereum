@@ -61,6 +61,12 @@ type Tally struct {
 	Votes     int  `json:"votes"`     // Number of votes until now wanting to pass the proposal
 }
 
+/* This struct will store Informaion of every node of Network.
+	@Owner: address of each node
+	@OStakes : The Number of stakes each node staked
+	@Timestamp : The timestamp of each node entry in the Network
+	@MiningPower : Mining Power of each node
+*/
 type TallyStake struct {
 	Owner     common.Address `json:"owner"`
 	OStakes   uint64         `json:"o_stakes"`
@@ -69,11 +75,21 @@ type TallyStake struct {
 	MiningPower uint64 `json:"mining_power"`
 }
 
+/* This struct will store the Information of selected nodes.
+	@Owner: address of selected node
+	@OStakes : The Number of stakes selected node staked
+*/
 type TallyDelegatedStake struct {
 	Owner   common.Address `json:"owner"`
 	OStakes uint64         `json:"o_stakes"`
 }
 
+/* This struct will store Informaion  of strong nodes in Network.
+	@Owner: address of strong node
+	@OStakes : The Number of stakes strong node staked
+	@MiningPower : Mining Power of strong node
+	@attack : attack or non attack strategy
+*/
 type StrongPool struct {
 	Owner       common.Address `json:"owner"`
 	OStakes     uint64         `json:"o_stakes"`
@@ -81,6 +97,12 @@ type StrongPool struct {
 	attack      bool           `json:"attack"`
 }
 
+/* This struct will store Informaion  of week nodes in Network.
+	@Owner: address of week node
+	@OStakes : The Number of stakes week node staked
+	@MiningPower : Mining Power of week node
+	@attack : attack or non attack strategy
+*/
 type WeekPool struct {
 	Owner       common.Address `json:"owner"`
 	OStakes     uint64         `json:"o_stakes"`
@@ -88,6 +110,11 @@ type WeekPool struct {
 	attack      bool           `json:"attack"`
 }
 
+/* This struct will store Informaion nodes who selected for miner.
+	@Owner: address of miner node
+	@OStakes : The Number of stakes miner node staked
+	@MiningPower : Mining Power of miner node
+*/
 type Minerpool struct {
 	Owner       common.Address `json:"owner"`
 	OStakes     uint64         `json:"o_stakes"`
@@ -111,7 +138,7 @@ type Snapshot struct {
 	StrongPool          []*StrongPool               `json:"strong_pool"`           //Naveen
 	WeekPool            []*WeekPool                 `json:"week_pool"`             //Naveen
 	DelegatedSigners    map[common.Address]struct{} `json:"delegated_signers"`     //Naveen
-	malicious           bool
+	malicious           bool				
 	stage1              bool
 	stage2              bool
 	stage3              bool
@@ -488,6 +515,7 @@ func (s *Snapshot) apply(headers []*types.Header) (*Snapshot, error) {
 
 		}
 
+		// Stage two 
 		snap.stage1 = false
 		fmt.Println("Nodes in Network:- ")
 		for i := 0; i < len(snap.TallyStakes); i++ {

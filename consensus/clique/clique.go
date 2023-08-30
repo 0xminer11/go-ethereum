@@ -184,14 +184,14 @@ type Clique struct {
 	signer    common.Address // Ethereum address of the signing key
 	signFn    SignerFn       // Signer function to authorize hashes with
 	lock      sync.RWMutex   // Protects the signer fields
-	malicious bool
+	malicious bool				//Indicates Malicious Nodes
 	timetaken time.Duration
 
 	// The fields below are for testing only
 	fakeDiff bool // Skip difficulty verifications
-	stage1   bool
-	stage2   bool
-	stage3   bool
+	stage1   bool		//Stage One 
+	stage2   bool		// Second Stage
+	stage3   bool		// Third Stage
 }
 
 // New creates a Clique proof-of-authority consensus engine with the initial

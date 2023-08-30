@@ -78,7 +78,10 @@ func (api *API) GetSigners(number *rpc.BlockNumber) ([]common.Address, error) {
 	return snap.signers(), nil
 }
 
-// Abhi
+/*
+	This Function will add the stake to the network By every node
+	@stake : The number of stakes
+*/
 func (api *API) AddStake(stake uint64) {
 	log.Info("adding Stake")
 	fmt.Println(stake)
@@ -89,6 +92,7 @@ func (api *API) AddStake(stake uint64) {
 	api.clique.stake = stake
 
 }
+
 
 func (api *API) ActAsMalicious() {
 	api.clique.malicious = true
