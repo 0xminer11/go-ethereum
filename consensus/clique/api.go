@@ -89,32 +89,32 @@ func (api *API) AddStake(stake uint64) {
 	defer api.clique.lock.Unlock()
 
 	//api.clique.stakes[address] = stake
-	api.clique.stake = stake
+	api.clique.stake = stake	//add stake to clique struct
 
 }
 
 
 func (api *API) ActAsMalicious() {
-	api.clique.malicious = true
+	api.clique.malicious = true // turn this node as malicious
 	log.Info("You Are Now malicious Node")
 
 }
 
-func (api *API) StageOne() {
+func (api *API) StageOne() { 	//First stage game activated
 	api.clique.stage1 = true
 	api.clique.stage2 = false
 	api.clique.stage3 = false
 	fmt.Println("First Stage Game Started......... ")
 }
 
-func (api *API) StageTwo() {
+func (api *API) StageTwo() { 		//Second stage game activated
 	api.clique.stage1 = false
 	api.clique.stage2 = true
 	api.clique.stage3 = false
 	fmt.Println("SeconStage Stage Game Started......... ")
 }
 
-func (api *API) StageThree() {
+func (api *API) StageThree() {		//Final stage game activated
 	api.clique.stage1 = false
 	api.clique.stage2 = false
 	api.clique.stage3 = true

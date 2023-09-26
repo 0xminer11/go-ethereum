@@ -185,13 +185,13 @@ type Clique struct {
 	signFn    SignerFn       // Signer function to authorize hashes with
 	lock      sync.RWMutex   // Protects the signer fields
 	malicious bool				//Indicates Malicious Nodes
-	timetaken time.Duration
+	timetaken time.Duration		//time duration for which the node is malicious
 
 	// The fields below are for testing only
 	fakeDiff bool // Skip difficulty verifications
-	stage1   bool		//Stage One 
-	stage2   bool		// Second Stage
-	stage3   bool		// Third Stage
+	stage1   bool		//Stage One game
+	stage2   bool		// Second Stage game
+	stage3   bool		// Third Stage game
 }
 
 // New creates a Clique proof-of-authority consensus engine with the initial

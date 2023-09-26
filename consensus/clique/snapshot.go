@@ -138,10 +138,10 @@ type Snapshot struct {
 	StrongPool          []*StrongPool               `json:"strong_pool"`           //Naveen
 	WeekPool            []*WeekPool                 `json:"week_pool"`             //Naveen
 	DelegatedSigners    map[common.Address]struct{} `json:"delegated_signers"`     //Naveen
-	malicious           bool				
-	stage1              bool
-	stage2              bool
-	stage3              bool
+	malicious           bool						//Find malicious node
+	stage1              bool						//stage 1 game
+	stage2              bool						//stage 2 game
+	stage3              bool						//stage 3 game
 }
 
 // signersAscending implements the sort interface to allow sorting a list of addresses
